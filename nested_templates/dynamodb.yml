@@ -3,8 +3,7 @@
 
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  Template to create dynamodb tables as part of bootstrap
+Description: Template to create dynamodb tables as part of bootstrap
 Resources:
   ProductsTable:
     Type: AWS::DynamoDB::Table

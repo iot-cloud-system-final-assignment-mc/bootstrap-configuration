@@ -62,7 +62,7 @@ Resources:
             - Name: SourceCode
           Configuration:
             ActionMode: CREATE_UPDATE
-            Capabilities: CAPABILITY_IAM
+            Capabilities: CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM
             RoleArn: !GetAtt CloudformationRole.Arn
             StackName: !Ref ApplicationStackName
             TemplatePath: !Sub "SourceCode::application.yml"

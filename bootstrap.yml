@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Iot-Cloud-Systems Final Assignment - Marco Cavalli
+
+Parameters:
+  # *** This value must always be passed in when creating / updating stack
+  # "NoEcho" is set to true, for security, so token won't be visible when examining the resulting stack
+  GitHubOAuthToken:
+    Type: String
+    NoEcho: true
+    MinLength: 40
+    MaxLength: 40
+    AllowedPattern: '[a-zA-Z_0-9]*'
+
+  # *** The remaining parameters should either be:
+  # - overridden via changing "Default" here (PREFERABLE, since then they're in source control)
+  # - or you can pass them in when creating / updating the stack
+  
+  # *** The owner of the Github repo for this application.
+  GitHubOwner:
+    Type: String
+    Default: iot-cloud-system-final-assignment-mc
+    AllowedPattern: "[A-Za-z0-9-]+"
+
+  GitHubRepo:
+    Type: String
+    Default: bootstrap-configuration
+    AllowedPattern: "[A-Za-z0-9-]+"
+
+  GitHubBranch:
+    Type: String
+    Default: main
+    AllowedPattern: "[A-Za-z0-9-]+"
+
+  # *** The stack name for the actual application we're deploying
+  ApplicationStackName:
+    Type: String
+    Default: bootstrap-configuration
+    AllowedPattern: "[A-Za-z0-9-]+"
+
+Resources:
+  PipelinesStack:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: nested_templates/pipelines.yml
+      Parameters:
+        GitHubOAuthToken: !Ref GitHubOAuthToken
+        GitHubOwner: !Ref GitHubOwner
+        GitHubRepo: !Ref GitHubRepo
+        GitHubBranch: !Ref GitHubBranch
+        ApplicationStackName: !Ref ApplicationStackName

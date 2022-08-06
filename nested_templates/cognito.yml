@@ -1,0 +1,112 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Template to setup cognito as part of bootstrap
+Parameters:
+  AdminEmailParameter:
+    Type: String
+    Description: "Enter system admin email address"
+  ApiKeyAdminParameter:
+    Type: String
+    Default: "9a7743fa-3ae7-11eb-adc1-0242ac120002"
+    Description: "Enter default api key value to be used by api gateway for system admins"
+  UserPoolCallbackURLParameter: 
+    Type: String
+    Description: "Enter Admin Management userpool call back url"
+Resources:
+  CognitoUserPool:
+    Type: "AWS::Cognito::UserPool"
+    Properties:
+      UserPoolName: cloud-systems-iot-project-pool
+      AutoVerifiedAttributes:
+        - "email"
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      AdminCreateUserConfig:      
+        InviteMessageTemplate:
+          EmailMessage: !Join 
+            - "" 
+            - - "Login into admin UI application at " 
+              - "<a>https://"
+              - !Ref UserPoolCallbackURLParameter 
+              - "/</a>" 
+              - " with username {username} and temporary password {####}"
+          EmailSubject: !Join 
+            - ""
+            - - "Your temporary password for the Cloud System IoT Project"  
+      Schema:
+        - AttributeDataType: "String"
+          Name: email
+          Required: True
+          Mutable: True 
+        - AttributeDataType: "String"
+          Name: apiKey
+          Required: False
+          Mutable: True 
+  CognitoUserPoolClient:
+    Type: "AWS::Cognito::UserPoolClient"
+    Properties:
+      ClientName: cloud-systems-iot-project-pool-client
+      GenerateSecret: false
+      UserPoolId: !Ref CognitoUserPool
+      AllowedOAuthFlowsUserPoolClient: True
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      SupportedIdentityProviders:
+        - COGNITO
+      CallbackURLs:
+        - !Join ["",["https://", !Ref UserPoolCallbackURLParameter, "/"]]
+      LogoutURLs:  
+        - !Join ["",["https://", !Ref UserPoolCallbackURLParameter, "/"]]
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+      WriteAttributes:
+        - "email"
+        - "custom:apiKey"
+  CognitoUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Join ["-", [cloud-systems-iot-project,!Ref "AWS::AccountId"]]
+      UserPoolId: !Ref CognitoUserPool
+  CognitoAdminUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: SystemAdmins
+      Description: Admin user group
+      Precedence: 0
+      UserPoolId: !Ref CognitoUserPool
+  CognitoAdminUser:
+    Type: AWS::Cognito::UserPoolUser
+    Properties:
+      Username: admin
+      DesiredDeliveryMediums:
+        - EMAIL
+      ForceAliasCreation: true
+      UserAttributes:
+        - Name: email
+          Value: !Ref AdminEmailParameter
+        - Name: custom:apiKey
+          Value: !Ref ApiKeyAdminParameter
+      UserPoolId: !Ref CognitoUserPool
+  CognitoAddUserToGroup:
+      Type: AWS::Cognito::UserPoolUserToGroupAttachment
+      Properties:
+        GroupName: !Ref CognitoAdminUserGroup
+        Username: !Ref CognitoAdminUser
+        UserPoolId: !Ref CognitoOperationUsersUserPool
+        
+Outputs:
+  CognitoUserPoolId:
+    Value: !Ref CognitoUserPool
+  CognitoUserPoolClientId:
+    Value: !Ref CognitoUserPoolClient
+  CognitoUserPoolProviderURL:
+    Value: !GetAtt CognitoUserPool.ProviderURL

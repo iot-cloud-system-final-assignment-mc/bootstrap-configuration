@@ -3,49 +3,47 @@ Transform: AWS::Serverless-2016-10-31
 Description: Iot-Cloud-Systems Final Assignment - Marco Cavalli
 
 Parameters:
-  # *** This value must always be passed in when creating / updating stack
-  # "NoEcho" is set to true, for security, so token won't be visible when examining the resulting stack
-  GitHubOAuthToken:
+  AdminEmailParameter:
     Type: String
-    NoEcho: true
-    MinLength: 40
-    MaxLength: 40
-    AllowedPattern: '[a-zA-Z_0-9]*'
-
-  # *** The remaining parameters should either be:
-  # - overridden via changing "Default" here (PREFERABLE, since then they're in source control)
-  # - or you can pass them in when creating / updating the stack
-  
-  # *** The owner of the Github repo for this application.
-  GitHubOwner:
+    Description: "Enter the System Administrator email address"
+  ApiKeyAdminParameter:
     Type: String
-    Default: iot-cloud-system-final-assignment-mc
-    AllowedPattern: "[A-Za-z0-9-]+"
-
-  GitHubRepo:
+    Default: "9a7743fa-3ae7-11eb-adc1-0242ac120002"
+    Description: "Enter default API key value to be used by API Gateway for System Administrators"
+  ApiKeyUserParameter:
     Type: String
-    Default: bootstrap-configuration
-    AllowedPattern: "[A-Za-z0-9-]+"
-
-  GitHubBranch:
-    Type: String
-    Default: main
-    AllowedPattern: "[A-Za-z0-9-]+"
-
-  # *** The stack name for the actual application we're deploying
-  ApplicationStackName:
-    Type: String
-    Default: bootstrap-configuration
-    AllowedPattern: "[A-Za-z0-9-]+"
+    Default: "88b43c36-802e-11eb-af35-38f9d35b2c15"
+    Description: "Enter default API key value to be used by API Gateway for normal Users"
 
 Resources:
-  PipelinesStack:
+  DynamoDBTables:
     Type: AWS::Serverless::Application
     Properties:
-      Location: nested_templates/pipelines.yml
+      Location: nested_templates/dynamodb.yml
+
+  WebsiteHosting:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: nested_templates/website_hosting.yml
+
+  Cognito:
+    DependsOn: WebsiteHosting
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: nested_templates/cognito.yml
       Parameters:
-        GitHubOAuthToken: !Ref GitHubOAuthToken
-        GitHubOwner: !Ref GitHubOwner
-        GitHubRepo: !Ref GitHubRepo
-        GitHubBranch: !Ref GitHubBranch
-        ApplicationStackName: !Ref ApplicationStackName
+        AdminEmailParameter: !Ref AdminEmailParameter
+        ApiKeyAdminParameter: !Ref ApiKeyAdminParameter
+        UserPoolCallbackURLParameter: !GetAtt WebsiteHosting.Outputs.ApplicationSite
+
+Outputs:
+  ApplicationSiteBucket:
+    Description: The S3 Bucket that will contain the static assets for the application
+    Value: !GetAtt WebsiteHosting.Outputs.AppBucket
+    Export:
+      Name: "Cloud-Systems-IoT-ApplicationSiteBucket"
+  ApplicationSite:
+    Description: The name of the CloudFront url for the application site
+    Value: !GetAtt WebsiteHosting.Outputs.ApplicationSite
+    Export:
+      Name: "Cloud-Systems-IoT-ApplicationSite"  

@@ -2,10 +2,9 @@ version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "bootstrap-configuration"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-631xllnkw1g6"
-s3_prefix = "bootstrap-configuration"
+stack_name = "bootstrap-resources"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-11otlm1qgtcw0"
+s3_prefix = "bootstrap-resources"
 region = "eu-west-1"
-capabilities = "CAPABILITY_NAMED_IAM"
-parameter_overrides = "GitHubOwner=\"iot-cloud-system-final-assignment-mc\" GitHubRepo=\"bootstrap-configuration\" GitHubBranch=\"main\" ApplicationStackName=\"bootstrap-configuration\""
+capabilities = "CAPABILITY_AUTO_EXPAND"
 image_repositories = []

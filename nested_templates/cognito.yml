@@ -101,7 +101,7 @@ Resources:
       Properties:
         GroupName: !Ref CognitoAdminUserGroup
         Username: !Ref CognitoAdminUser
-        UserPoolId: !Ref CognitoOperationUsersUserPool
+        UserPoolId: !Ref CognitoUserPool
         
 Outputs:
   CognitoUserPoolId:

@@ -36,6 +36,17 @@ Resources:
         ApiKeyAdminParameter: !Ref ApiKeyAdminParameter
         UserPoolCallbackURLParameter: !GetAtt WebsiteHosting.Outputs.ApplicationSite
 
+  UtilsLayers:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: utils-layer
+      Description: Utilities for project
+      ContentUri: ./layers
+      CompatibleRuntimes:
+        - nodejs14.x
+      LicenseInfo: "MIT"
+      RetentionPolicy: Retain
+
 Outputs:
   ApplicationSiteBucket:
     Description: The S3 Bucket that will contain the static assets for the application
@@ -47,3 +58,23 @@ Outputs:
     Value: !GetAtt WebsiteHosting.Outputs.ApplicationSite
     Export:
       Name: "Cloud-Systems-IoT-ApplicationSite"  
+  CognitoUserPoolId:
+    Description: The ID of the Cognito User Pool
+    Value: !GetAtt Cognito.Outputs.CognitoUserPoolId
+    Export:
+      Name: "Cloud-Systems-IoT-CognitoUserPoolId"
+  CognitoUserPoolClientId:
+    Description: The ID of the Cognito User Pool Client
+    Value: !GetAtt Cognito.Outputs.CognitoUserPoolClientId
+    Export:
+      Name: "Cloud-Systems-IoT-CognitoUserPoolClientId"
+  CognitoUserPoolProviderURL:
+    Description: The URL of the Cognito User Pool Provider
+    Value: !GetAtt Cognito.Outputs.CognitoUserPoolProviderURL
+    Export:
+      Name: "Cloud-Systems-IoT-CognitoUserPoolProviderURL"
+  UtilsLayerArn:
+    Description: The ARN of the HttpUtilsLayer
+    Value: !Ref UtilsLayers
+    Export:
+      Name: "Cloud-Systems-IoT-HttpUtilsLayerArn"

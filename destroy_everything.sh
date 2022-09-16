@@ -1,5 +1,5 @@
 if [ -z "$1" ]; then
-    echo "Usage: $0 <AWS REGION>"
+    echo "Usage: $0 <AWS REGION> [<SAM S3 BUCKET>]"
     exit 0
 fi
 
@@ -25,7 +25,7 @@ sam delete --stack-name api-gateway --region $1
 # PIPELINES
 
 # delete web-client-pipeline
-PIPELINE_BUCKET=$(aws cloudformation list-stack-resources --stack-name web-client --region ${AWS_REGION} --query "StackResourceSummaries[?LogicalResourceId == 'PipelineBucket'].PhysicalResourceId" --output text)
+PIPELINE_BUCKET=$(aws cloudformation list-stack-resources --stack-name web-client-pipeline --region ${AWS_REGION} --query "StackResourceSummaries[?LogicalResourceId == 'PipelineBucket'].PhysicalResourceId" --output text)
 aws s3 rm s3://${PIPELINE_BUCKET} --recursive --region $1
 sam delete --stack-name web-client-pipeline --region $1
 
@@ -48,3 +48,9 @@ sam delete --stack-name auth-lambda-pipeline --region $1
 PIPELINE_BUCKET=$(aws cloudformation list-stack-resources --stack-name api-gateway-pipeline --region ${AWS_REGION} --query "StackResourceSummaries[?LogicalResourceId == 'PipelineBucket'].PhysicalResourceId" --output text)
 aws s3 rm s3://${PIPELINE_BUCKET} --recursive --region $1
 sam delete --stack-name api-gateway-pipeline --region $1
+
+# if sam s3 bucket is provided, delete it
+if [ ! -z "$2" ]; then
+    aws s3 rm s3://$2 --recursive --region $1
+    aws s3 rb s3://$2 --region $1
+fi

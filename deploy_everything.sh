@@ -69,29 +69,30 @@ cd ..
 # deploy web-client-pipeline
 DEPLOY_BUCKET=$(aws cloudformation list-exports --region ${AWS_REGION} --query "Exports[?Name=='Cloud-Systems-IoT-ApplicationSiteBucket'].Value" --output text)
 cd web-client
-sam deploy -t pipeline-template.yml --stack-name web-client --s3-bucket $SAM_S3_BUCKET --s3-prefix web-client --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides GitHubOAuthToken=$GITHUB_OAUTH_TOKEN DeployBucket=$DEPLOY_BUCKET
+sam deploy -t pipeline-template.yml --stack-name web-client-pipeline --s3-bucket $SAM_S3_BUCKET --s3-prefix web-client --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides GithubOAuthToken=$GITHUB_OAUTH_TOKEN DeployBucket=$DEPLOY_BUCKET
 cd ..
 
 # deploy lambda-products-pipeline
 cd lambda-products
-sam deploy -t pipeline-template.yml --stack-name lambda-products-pipeline --s3-bucket $SAM_S3_BUCKET --s3-prefix lambda-products-pipeline --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides GitHubOAuthToken=$GITHUB_OAUTH_TOKEN s3SamBucket=$SAM_S3_BUCKET
+sam deploy -t pipeline-template.yml --stack-name lambda-products-pipeline --s3-bucket $SAM_S3_BUCKET --s3-prefix lambda-products-pipeline --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides GithubOAuthToken=$GITHUB_OAUTH_TOKEN s3SamBucket=$SAM_S3_BUCKET
 cd ..
 
 # deploy lambda-orders-pipeline
 cd lambda-orders
-sam deploy -t pipeline-template.yml --stack-name lambda-orders-pipeline --s3-bucket $SAM_S3_BUCKET --s3-prefix lambda-orders-pipeline --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides GitHubOAuthToken=$GITHUB_OAUTH_TOKEN s3SamBucket=$SAM_S3_BUCKET
+sam deploy -t pipeline-template.yml --stack-name lambda-orders-pipeline --s3-bucket $SAM_S3_BUCKET --s3-prefix lambda-orders-pipeline --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides GithubOAuthToken=$GITHUB_OAUTH_TOKEN s3SamBucket=$SAM_S3_BUCKET
 cd ..
 
 # deploy auth-lambda-pipeline
 cd auth-lambda
-sam deploy -t pipeline-template.yml --stack-name auth-lambda-pipeline --s3-bucket $SAM_S3_BUCKET --s3-prefix auth-lambda-pipeline --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides GitHubOAuthToken=$GITHUB_OAUTH_TOKEN s3SamBucket=$SAM_S3_BUCKET
+sam deploy -t pipeline-template.yml --stack-name auth-lambda-pipeline --s3-bucket $SAM_S3_BUCKET --s3-prefix auth-lambda-pipeline --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides GithubOAuthToken=$GITHUB_OAUTH_TOKEN s3SamBucket=$SAM_S3_BUCKET
 cd ..
 
 # deploy api-gateway-pipeline
 cd api-gateway
-sam deploy -t pipeline-template.yml --stack-name api-gateway-pipeline --s3-bucket $SAM_S3_BUCKET --s3-prefix api-gateway-pipeline --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides GitHubOAuthToken=$GITHUB_OAUTH_TOKEN s3SamBucket=$SAM_S3_BUCKET
+sam deploy -t pipeline-template.yml --stack-name api-gateway-pipeline --s3-bucket $SAM_S3_BUCKET --s3-prefix api-gateway-pipeline --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides GithubOAuthToken=$GITHUB_OAUTH_TOKEN s3SamBucket=$SAM_S3_BUCKET
 cd ..
 
 
 echo "Done!"
 echo "You can now access the web client at http://$(aws cloudformation list-exports --region ${AWS_REGION} --query "Exports[?Name=='Cloud-Systems-IoT-ApplicationSite'].Value" --output text)"
+echo "If you can't access the web client, wait a few minutes and try again because the files in the S3 bucket may require a couple of minutes to be uploaded."

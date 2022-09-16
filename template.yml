@@ -45,7 +45,6 @@ Resources:
       CompatibleRuntimes:
         - nodejs14.x
       LicenseInfo: "MIT"
-      RetentionPolicy: Retain
 
 Outputs:
   ApplicationSiteBucket:
